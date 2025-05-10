@@ -38,7 +38,7 @@ function M.scan_todos()
                 return
             end
 
-            telescope_integration.show_picker(todo_items)
+            telescope_integration.show_telescope_picker(todo_items)
         end)
     else
         vim.notify("unknown search strategy", vim.log.levels.ERROR, { title="TODOTelescope" })
