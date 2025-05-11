@@ -1,6 +1,5 @@
 local M = {}
 
--- TODO TESTING
 local scanner = require("todo-telescope.scanner")
 local telescope_integration = require("todo-telescope.telescope")
 local config_module = require("todo-telescope.config")

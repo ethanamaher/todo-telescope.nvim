@@ -47,7 +47,7 @@ local create_previewer = function(opts)
     opts = opts or {}
 
     return previewers.new_buffer_previewer({
-        title = opts.title or "TODO List",
+        title = opts.title or "TODO Statement",
         define_preview = function(self, entry, status)
             if not entry or not entry.filename or not entry.lnum then
                 previewer_utils.set_preview_message(self.state.bufnr, self.state.winid, "Invalid entry for preview")
