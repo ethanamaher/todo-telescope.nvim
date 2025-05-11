@@ -14,6 +14,7 @@ local Job = require("plenary.job")
 
 local string_display = entry_display.create({
     separator = " | ",
+
     items = {
         { width = 35 },
         { width = 5 },
@@ -53,14 +54,7 @@ local create_previewer = function(opts)
                 return
             end
 
-            local file_content
-            local read_ok, result = pcall(vim.fn.readfile, entry.filename)
-            if not read_ok or not result then
-                return
-            end
-            file_content = result
-
-            -- TODO check if file exists
+            local file_content = vim.fn.readfile(entry.filename)
 
             if not vim.api.nvim_buf_is_valid(self.state.bufnr) then
                 return
@@ -70,14 +64,46 @@ local create_previewer = function(opts)
             local winid = self.state.winid
             local line_to_highlight = entry.lnum - 1
 
+            -- clear buffer and namespace
+            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
+            vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
+
             local filetype = vim.fn.fnamemodify(entry.filename, ":e")
 
-            vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
-            vim.api.nvim_buf_set_option(bufnr, "filetype", filetype)
-            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, file_content)
-            vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
+            local win_height = vim.api.nvim_win_get_height(winid)
+            local top_line = line_to_highlight
 
-            -- TODO highlight hit keyword and put it somewhere consistent
+            local top_padding = 0
+            local bot_padding = 0
+            -- max padding 12 hardcoded
+            -- top padding calculation
+            if line_to_highlight < 12 then
+                top_padding = 12 - line_to_highlight
+                for _ = 1, top_padding do
+                    table.insert(file_content, 1, "")
+                end
+                line_to_highlight = line_to_highlight + top_padding
+            end
+
+            -- botpadding calculation
+            if line_to_highlight - #file_content < 12 then
+                bot_padding = 12 - (line_to_highlight - #file_content)
+                for _ = 1, bot_padding do
+                    table.insert(file_content, "")
+                end
+            end
+
+            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, file_content)
+            vim.api.nvim_buf_set_option(bufnr, "filetype", filetype)
+            vim.api.nvim_buf_add_highlight(bufnr, -1, "Visual", line_to_highlight, 0, -1)
+
+            vim.schedule(function()
+                vim.api.nvim_win_call(self.state.winid, function()
+                    local view_line = math.max(0, line_to_highlight)
+                    vim.fn.cursor(view_line, 1)
+                    vim.cmd("normal! zt")
+                end)
+            end)
         end,
     })
 end
