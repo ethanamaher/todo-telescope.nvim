@@ -7,12 +7,11 @@ local Path = require("plenary.path")
 
 local function find_git_repo_root()
     local file_path = vim.fn.expand("%:p")
-    local parent_dir = Path:new(current_path):parent():absolute()
-    if not parent_dir then
-        return
-    end
+    local cur_path = Path:new(file_path)
+    local init_path = cur_path:is_file() and cur_path:parent():absolute() or cur_path:absolute()
 
-    local repo_root_cmd = { "git", "-C", vim.fn.fnameescape(parent_dir), "rev-parse", "--show-toplevel" }
+
+    local repo_root_cmd = { "git", "-C", vim.fn.fnameescape(init_path), "rev-parse", "--show-toplevel" }
     local repo_root_list = vim.fn.systemlist(repo_root_cmd)
     local repo_root = repo_root_list and repo_root_list[1]
 
@@ -48,7 +47,7 @@ end
 function M.setup(user_opts)
     config_module.setup(user_opts)
 
-    vim.api.nvim_create_user_command("TSScanTODO", M.scan_todos, {
+    vim.api.nvim_create_user_command("TelescopeTodo", M.scan_todos, {
         desc = "Scan project for TODOs, FIXMEs, etc."
     })
 end
