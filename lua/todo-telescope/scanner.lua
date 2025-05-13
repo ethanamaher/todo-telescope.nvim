@@ -40,11 +40,11 @@ function M.find_todos_git_grep(repo_root, callback)
 
         on_exit = vim.schedule_wrap(function(j, return_val)
             local output_lines = j:result() or {}
-            print(output_lines)
             for _, line in ipairs(output_lines) do
+                -- parse git grep output <filepath>:<line_number>:<text>
                 local file_rel, lnum, text = line:match("([^:]+):(%d+):(.*)")
                 if file_rel and lnum and text then
-                    local matched = "UNKNOWN"
+                    local matched = ""
                     local search_for_kw = current_config.case_sensitive and text or text:lower()
                     for _, kw_candidate in ipairs(current_config.keywords) do
                         local kw = current_config.case_sensitive and kw_candidate or kw_candidate:lower()
@@ -53,6 +53,9 @@ function M.find_todos_git_grep(repo_root, callback)
                             break
                         end
                     end
+
+                    -- remove leading white space
+                    text = text:gsub("^%s*", '')
 
                     table.insert(results, {
                         file_absolute = Path:new(repo_root, file_rel):absolute(),
