@@ -1,4 +1,15 @@
+<div align="center">
+
+## todo-sidebar
+
+This repo is deprecated, all continued development will be on [todo-sidebar](https://github.com/ethanamaher/todo-sidebar.nvim)
+
+project shifted to using a sidebar window buffer instead of a telescope picker
+
+---
+
 # todo-telescope
+</div>
 a lazy nvim plugin created to find TODO, FIXME, REVIEW, etc statements in a git repo
 
 made to make it easier to find any, kept merging too many into main and got chastised
